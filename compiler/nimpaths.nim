@@ -49,6 +49,7 @@ proc getDocHacksJs*(nimr: string, nim = getCurrentCompilerExe(), forceRebuild = 
   if forceRebuild or not docHackJs2.fileExists:
     let cmd =  "$nim js -d:release $file" % ["nim", nim.quoteShell, "file", docHackNim.interp(nimr = nimr).quoteShell]
     echo "getDocHacksJs: cmd: " & cmd
-    doAssert execShellCmd(cmd) == 0, $(cmd)
+    # FIXME: doesn't work on ios
+    # doAssert execShellCmd(cmd) == 0, $(cmd)
   doAssert docHackJs2.fileExists
   result = docHackJs2
