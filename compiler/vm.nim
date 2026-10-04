@@ -570,6 +570,9 @@ proc rawExecute(c: PCtx, start: int, tos: PStackFrame): TFullReg =
       # other useful variables: c.loopIterations
       echo "$# [$#] $#" % [c.config$info, $instr.opcode, c.config.sourceLine(info)]
     c.profiler.enter(c, tos)
+    when defined(nimVmExecHooks):
+      if c.enterHook != nil:
+        c.enterHook(c, pc, tos, instr)
     case instr.opcode
     of opcEof: return regs[ra]
     of opcRet:
@@ -2406,6 +2409,11 @@ proc execute(c: PCtx, start: int): PNode =
   var tos = PStackFrame(prc: nil, comesFrom: 0, next: nil)
   newSeq(tos.slots, c.prc.regInfo.len)
   result = rawExecute(c, start, tos).regToNode
+
+when defined(nimVmExecHooks):
+  proc resumeExecution*(c: PCtx; pc: int; tos: PStackFrame): PNode =
+    ## Continues execution that was interrupted from `enterHook`.
+    result = rawExecute(c, pc, tos).regToNode
 
 proc execProc*(c: PCtx; sym: PSym; args: openArray[PNode]): PNode =
   c.loopIterations = c.config.maxLoopIterationsVM

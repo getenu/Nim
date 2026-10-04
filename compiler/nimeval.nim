@@ -149,6 +149,14 @@ proc registerErrorHook*(i: Interpreter, hook:
                               severity: Severity) {.gcsafe.}) =
   i.graph.config.structuredErrorHook = hook
 
+when defined(nimVmExecHooks):
+  proc registerEnterHook*(i: Interpreter; hook:
+                          proc (c: PCtx; pc: int; tos: PStackFrame;
+                                instr: TInstr)) =
+    ## Calls `hook` before each VM instruction. Raising from it pauses the
+    ## script; continue it with `resumeExecution`.
+    PCtx(i.graph.vm).enterHook = hook
+
 proc runRepl*(r: TLLRepl;
               searchPaths: openArray[string];
               supportNimscript: bool) =

@@ -279,6 +279,11 @@ type
     procToCodePos*: Table[int, VmProcInfo]
     cannotEval*: bool
     locals*: IntSet
+    when defined(nimVmExecHooks):
+      enterHook*: proc (c: PCtx; pc: int; tos: PStackFrame; instr: TInstr)
+        ## Called before each instruction. An exception raised from it
+        ## unwinds the VM; `resumeExecution` continues from the `pc` and `tos`
+        ## it was given.
 
   PStackFrame* = ref TStackFrame
   TStackFrame* {.acyclic.} = object
