@@ -1956,7 +1956,11 @@ proc rawExecute(c: PCtx, start: int, tos: PStackFrame): Address =
         else:
           putStr(ra, $sigHash(shSym, c.config))
     of opcSlurp:
-      putStr(ra, opSlurp(str(instr.regB), c.debug[pc], c.module, c.config))
+      when defined(nimcore):
+        putStr(ra, opSlurp(str(instr.regB), c.debug[pc], c.module, c.config))
+      else:
+        putStr(ra, "")
+        globalError(c.config, c.debug[pc], "VM is not built with 'slurp' support")
     of opcGorge:
       let rb = instr.regB
       if defined(nimsuggest) or c.config.cmd == cmdCheck:
